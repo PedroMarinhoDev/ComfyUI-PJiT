@@ -4,10 +4,10 @@
 </picture>
 
 <p align="center">
-  <img alt="ComfyUI v0.44+" src="https://img.shields.io/badge/ComfyUI-v0.44%2B-F2A65A?style=flat-square&labelColor=555">
-  <img alt="VRAM from 4 GB" src="https://img.shields.io/badge/VRAM-from%204%20GB-F2A65A?style=flat-square&labelColor=555">
-  <img alt="No pip install" src="https://img.shields.io/badge/pip%20install-none-F2A65A?style=flat-square&labelColor=555">
-  <img alt="Code GPL-3.0, weights Apache-2.0" src="https://img.shields.io/badge/license-GPL--3.0%20%C2%B7%20weights%20Apache--2.0-F2A65A?style=flat-square&labelColor=555">
+  <a href="#requirements"><img alt="ComfyUI v0.44+" src="https://img.shields.io/badge/ComfyUI-v0.44%2B-F2A65A?style=flat-square&labelColor=555"></a>
+  <a href="#model-files"><img alt="VRAM from 4 GB" src="https://img.shields.io/badge/VRAM-from%204%20GB-F2A65A?style=flat-square&labelColor=555"></a>
+  <a href="#quick-start"><img alt="No pip install" src="https://img.shields.io/badge/pip%20install-none-F2A65A?style=flat-square&labelColor=555"></a>
+  <a href="#license-and-credits"><img alt="Code GPL-3.0, weights Apache-2.0" src="https://img.shields.io/badge/license-GPL--3.0%20%C2%B7%20weights%20Apache--2.0-F2A65A?style=flat-square&labelColor=555"></a>
 </p>
 
 <p align="center">
@@ -24,21 +24,21 @@ its Qwen3.5-4B text encoder a real `CLIP`, and the stock KSampler drives it. Not
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="assets/showcase-dark.jpg">
-  <img alt="Seven P-JiT images: a panda in a bamboo grove, a Scandinavian reading nook, a bowl of ramen, a Mediterranean street after rain, an elderly woman in a headscarf, a fox asleep in the snow and a man blowing out birthday candles" src="assets/showcase-light.jpg" width="100%">
+  <img alt="Seven P-JiT images: a panda in a bamboo grove, a Scandinavian reading nook, a bowl of ramen, a Mediterranean street after rain, an elderly woman in a headscarf, a lighthouse at sunset and a hot-air balloon over fields at sunrise" src="assets/showcase-light.jpg" width="100%">
 </picture>
 
-<sub><code>pjit_21k_bf16</code> · 50 steps, euler, cfg 15 · RTX 3090 · nook, ramen, street and fox: our captions, seed 42, first try · panda, portrait and birthday: Linum's sample captions with their seeds and noise</sub>
+<sub><code>pjit_21k_bf16</code> · 50 steps, euler, cfg 15 · RTX 3090 · nook, ramen, street, lighthouse and balloon: our captions, seed 42 · panda and portrait: Linum's sample captions with their seeds and noise</sub>
 
 <table>
   <tr>
-    <td width="33%"><img src="assets/icons/native.svg" width="24" alt=""><br><b>ComfyUI's own nodes</b><br>Stock KSampler, CLIP Text Encode, Load VAE (<code>pixel_space</code>) and memory management. Guidance comes with the model.</td>
-    <td width="33%"><img src="assets/icons/pixels.svg" width="24" alt=""><br><b>Pixels, no VAE</b><br>The latent is the image, so live previews are the picture itself and image to image needs no encoder.</td>
-    <td width="33%"><img src="assets/icons/files.svg" width="24" alt=""><br><b>bf16 at half the size</b><br>The bf16 file gives the same pixels as Linum's fp32 release, at 4.4 GB instead of 8.7.</td>
+    <td width="33%" valign="top"><img src="assets/icons/native.svg" width="24" alt=""><br><b>ComfyUI's own nodes</b><br>Stock KSampler, CLIP Text Encode, Load VAE (<code>pixel_space</code>) and memory management. Guidance comes with the model.</td>
+    <td width="33%" valign="top"><img src="assets/icons/pixels.svg" width="24" alt=""><br><b>Pixels, no VAE</b><br>The latent is the image, so live previews are the picture itself and image to image needs no encoder.</td>
+    <td width="33%" valign="top"><img src="assets/icons/files.svg" width="24" alt=""><br><b>bf16 at half the size</b><br>The bf16 file gives the same pixels as Linum's fp32 release, at 4.4 GB instead of 8.7.</td>
   </tr>
   <tr>
-    <td><img src="assets/icons/speed.svg" width="24" alt=""><br><b>int8 ConvRot</b><br>2.3 GB and about 1.8x faster on ComfyUI's own int8 kernels, with small changes in fine detail.</td>
-    <td><img src="assets/icons/refine.svg" width="24" alt=""><br><b>A refiner pass</b><br>Image to image at low denoise, with Qwen3.5-4B describing the input: a second pass for images from other models.</td>
-    <td><img src="assets/icons/caption.svg" width="24" alt=""><br><b>Linum's samples, seed for seed</b><br>Their noise and schedule reproduce the published images, and the prompt upsampler writes captions from a short idea.</td>
+    <td valign="top"><img src="assets/icons/speed.svg" width="24" alt=""><br><b>int8 ConvRot</b><br>2.3 GB and about 1.8x faster on ComfyUI's own int8 kernels, with small changes in fine detail.</td>
+    <td valign="top"><img src="assets/icons/refine.svg" width="24" alt=""><br><b>A refiner pass</b><br>Image to image at low denoise, with Qwen3.5-4B describing the input: a second pass for images from other models.</td>
+    <td valign="top"><img src="assets/icons/caption.svg" width="24" alt=""><br><b>Linum's samples, seed for seed</b><br>Their noise and schedule reproduce the published images, and the prompt upsampler writes captions from a short idea.</td>
   </tr>
 </table>
 
@@ -58,8 +58,8 @@ its Qwen3.5-4B text encoder a real `CLIP`, and the stock KSampler drives it. Not
 
    | File | Folder | Size |
    |---|---|---|
-   | `pjit_21k_bf16.safetensors` | `models/diffusion_models` | 4.37 GB |
-   | `qwen3.5_4b_bf16.safetensors` | `models/text_encoders` | 9.32 GB |
+   | [pjit_21k_bf16.safetensors](https://huggingface.co/PedroMarinhoDev/P-JiT-21K-ComfyUI/blob/main/diffusion_models/pjit_21k_bf16.safetensors) | `models/diffusion_models` | 4.37 GB |
+   | [qwen3.5_4b_bf16.safetensors](https://huggingface.co/Comfy-Org/Qwen3.5/blob/main/text_encoders/qwen3.5_4b_bf16.safetensors) | `models/text_encoders` | 9.32 GB |
 
    ```bash
    cd ComfyUI/models
@@ -106,9 +106,9 @@ autocast, so the file only decides what is stored.
 
 | File | Size | RTX 3090, 1024×1024 | Against Linum's images (portrait, birthday, panda) |
 |---|---|---|---|
-| **`pjit_21k_bf16`** | 4.37 GB | 0.34 s/step | 40.2, 39.5, 47.7 dB: the same pixels as fp32 |
-| `pjit_21k_int8_convrot` | 2.33 GB | 0.19 s/step | 32.8, 31.7, 40.3 dB: the same pictures, other fine detail |
-| `model.safetensors` from [Linum-AI/pjit-21k](https://huggingface.co/Linum-AI/pjit-21k) (fp32) | 8.74 GB | 0.35 s/step | 40.2, 39.5, 47.7 dB |
+| **[pjit_21k_bf16](https://huggingface.co/PedroMarinhoDev/P-JiT-21K-ComfyUI/blob/main/diffusion_models/pjit_21k_bf16.safetensors)** | 4.37 GB | 0.34 s/step | 40.2, 39.5, 47.7 dB: the same pixels as fp32 |
+| [pjit_21k_int8_convrot](https://huggingface.co/PedroMarinhoDev/P-JiT-21K-ComfyUI/blob/main/diffusion_models/pjit_21k_int8_convrot.safetensors) | 2.33 GB | 0.19 s/step | 32.8, 31.7, 40.3 dB: the same pictures, other fine detail |
+| [Linum's fp32 release](https://huggingface.co/Linum-AI/pjit-21k/blob/main/model.safetensors) | 8.74 GB | 0.35 s/step | 40.2, 39.5, 47.7 dB |
 
 - **bf16 is lossless here.** It keeps the norm gains and the output modulation in fp32 and rounds only the Linears and
   convs, which bf16 autocast rounds the same way before every matmul. The three test images came out pixel for pixel
