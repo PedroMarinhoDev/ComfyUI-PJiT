@@ -69,7 +69,7 @@ class PJiTLoadTextEncoder(IO.ComfyNode):
         files = folder_paths.get_filename_list("text_encoders")
         return IO.Schema(
             node_id="PJiTLoadTextEncoder", display_name="Load P-JiT Text Encoder", category=CATEGORY,
-            description="Loads Qwen3.5-4B from text_encoders as a CLIP that outputs what P-JiT was trained on: blocks 7, 15 and 27 side by side, chat template with thinking off, at most 256 tokens. Works with CLIP Text Encode and Generate Text.",
+            description="Loads Qwen3.5-4B from text_encoders (bf16, or the smaller int8 ConvRot, W6A8 and W4A8 files) as a CLIP that outputs what P-JiT was trained on: blocks 7, 15 and 27 side by side, chat template with thinking off, at most 256 tokens. Works with CLIP Text Encode and Generate Text.",
             inputs=[
                 IO.Combo.Input("text_encoder", options=files, default=_default(files, "qwen3.5_4b")),
                 IO.Combo.Input("device", options=["default", "cpu"], default="default", advanced=True),

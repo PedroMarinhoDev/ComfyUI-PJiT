@@ -1,3 +1,4 @@
+import importlib.util
 import json
 import subprocess
 import sys
@@ -9,6 +10,8 @@ from safetensors.torch import load_file, save_file
 
 from comfyui_pjit import nodes
 from comfyui_pjit.pjit import text, upsampler
+
+PACK = Path(__file__).resolve().parents[1]
 
 HERE = Path(__file__).resolve().parent
 CASES = json.loads((HERE / "fixtures/tokens.json").read_text())
@@ -93,3 +96,24 @@ def test_merge_tool(tmp_path):
     assert set(merged) == set(a) | set(b)
     for key, value in {**a, **b}.items():
         assert merged[key].dtype == value.dtype and torch.equal(merged[key], value)
+
+
+def test_text_encoder_quantization_plan():
+    """Comfy-Org's recipe: every Linear of the language model in the chosen format; the embedding table, vision and MTP
+    Linears int8; norms, convolutions, the small gates and the vision merger kept."""
+    spec = importlib.util.spec_from_file_location("quantize_text_encoder", PACK / "tools" / "quantize_text_encoder.py")
+    tool = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(tool)
+    lm = ["model.language_model.layers.3.self_attn.q_proj.weight", "model.language_model.layers.0.linear_attn.in_proj_z.weight",
+          "model.language_model.layers.0.linear_attn.out_proj.weight", "model.language_model.layers.31.mlp.down_proj.weight"]
+    other = ["model.language_model.embed_tokens.weight", "model.visual.blocks.5.attn.qkv.weight",
+             "model.visual.blocks.0.mlp.linear_fc2.weight", "mtp.layers.0.self_attn.o_proj.weight"]
+    kept = ["model.language_model.layers.0.linear_attn.in_proj_a.weight", "model.language_model.layers.0.linear_attn.conv1d.weight",
+            "model.language_model.layers.0.input_layernorm.weight", "model.visual.merger.linear_fc1.weight", "mtp.fc.weight",
+            "model.visual.patch_embed.proj.weight", "model.language_model.layers.3.self_attn.q_norm.weight"]
+    for key in lm:
+        assert tool.plan(key) == {"int8_convrot": "int8", "w6a8": 6, "w4a8": 4}, key
+    for key in other:
+        assert tool.plan(key) == {"int8_convrot": "int8", "w6a8": "int8", "w4a8": "int8"}, key
+    for key in kept:
+        assert not any(tool.plan(key).values()), key

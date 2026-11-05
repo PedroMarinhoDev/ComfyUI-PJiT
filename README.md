@@ -68,6 +68,8 @@ its Qwen3.5-4B text encoder a real `CLIP`, and the stock KSampler drives it. Not
    ```
 
    The workflows list both files with their links, so ComfyUI offers to download what's missing when you open one.
+   Smaller files of both are on the same Hugging Face page: the DiT in int8 (2.33 GB) and the text encoder in int8,
+   W6A8 or W4A8 (4.72, 4.05 or 3.16 GB); see [Model files](#model-files) and [Text encoders](#text-encoders).
 
 3. **Open a workflow and run.** In ComfyUI, **Templates → ComfyUI-PJiT → pjit_text_to_image** (or drag
    [`example_workflows/pjit_text_to_image.json`](example_workflows/pjit_text_to_image.json) in).
@@ -92,7 +94,7 @@ with full-body shots, crowds, several people interacting, and world knowledge su
 |---|---|
 | ComfyUI | 0.44.0 (a clean release install, with the comfy-kitchen it pins) and master of 2026-11-05 |
 | GPU | RTX 3090, 24 GB. Attention: pytorch, sage and xformers |
-| VRAM | from 4 GB free with dynamic VRAM (below), plus room for one 1.27 GB buffer of the text encoder |
+| VRAM | from 4 GB free with dynamic VRAM (below), plus room for the text encoder's embedding table in one piece: 1.27 GB in bf16, 0.64 GB in the smaller files |
 | Python packages | none beyond ComfyUI. P-JiT Noise (H100) compiles a Triton kernel on first use |
 
 GPUs without bf16 (GTX 10 and RTX 20 series) and the CPU compute in fp32 instead, which ComfyUI decides as for its own
@@ -120,6 +122,13 @@ autocast, so the file only decides what is stored.
 - Linum's own code takes 0.38 s/step on this card, and Linum's own code against itself, rerun in another batch shape,
   differs by 40.5 to 49.3 dB.
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/compare-dit-dark.jpg">
+  <img alt="The same three images (a portrait, a bowl of ramen, a lighthouse) from the fp32, bf16 and int8 ConvRot model files, and a full-size crop of the portrait's eyes from each" src="assets/compare-dit-light.jpg" width="100%">
+</picture>
+
+<sub>bf16 text encoder · 50 steps, euler, cfg 15, stock noise, same seed per row · RTX 3090 · last row: the portrait's eyes at full size · fp32 and bf16 are the same pixels</sub>
+
 <details>
 <summary><b>Speed with less free VRAM</b></summary>
 
@@ -134,8 +143,35 @@ fit, and the images are the same at every budget.
 A whole 1024×1024 image takes about 17 s with bf16 and 10 s with int8, the caption included. The text encoder needs
 room for a single 1.27 GB buffer: if other programs have filled the card, encoding stops with `VRAM grow failed`. Set
 **Load P-JiT Text Encoder**'s `device` to `cpu` (fp32 there, about 2 minutes for a caption and a negative on an
-i9-14900K), or free the memory.
+i9-14900K), use a smaller text encoder, or free the memory.
 </details>
+
+## Text encoders
+
+**Load P-JiT Text Encoder** reads any of these. bf16 is Comfy-Org's file; the other three are on this project's
+[Hugging Face page](https://huggingface.co/PedroMarinhoDev/P-JiT-21K-ComfyUI), all for `models/text_encoders`.
+
+| File | Size | Caption embeddings against bf16 | |
+|---|---|---|---|
+| **[qwen3.5_4b_bf16](https://huggingface.co/Comfy-Org/Qwen3.5/blob/main/text_encoders/qwen3.5_4b_bf16.safetensors)** | 9.32 GB | | as released |
+| [qwen3.5_4b_int8_convrot](https://huggingface.co/PedroMarinhoDev/P-JiT-21K-ComfyUI/blob/main/text_encoders/qwen3.5_4b_int8_convrot.safetensors) | 4.72 GB | 2 % off | about as far as Linum's own bf16 run is from its fp32 run |
+| [qwen3.5_4b_w6a8](https://huggingface.co/PedroMarinhoDev/P-JiT-21K-ComfyUI/blob/main/text_encoders/qwen3.5_4b_w6a8.safetensors) | 4.05 GB | 4 to 5 % off | |
+| [qwen3.5_4b_w4a8](https://huggingface.co/PedroMarinhoDev/P-JiT-21K-ComfyUI/blob/main/text_encoders/qwen3.5_4b_w4a8.safetensors) | 3.16 GB | 14 to 16 % off (27 % for the empty negative) | |
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/compare-te-dark.jpg">
+  <img alt="The same three images from the bf16, int8 ConvRot, W6A8 and W4A8 text encoders, and a full-size crop of the portrait's eyes from each" src="assets/compare-te-light.jpg" width="100%">
+</picture>
+
+<sub><code>pjit_21k_bf16</code> · 50 steps, euler, cfg 15, stock noise, same seed per row · RTX 3090 · last row: the portrait's eyes at full size</sub>
+
+- The pictures keep their composition with every file. int8 changes fine detail only. W6A8 changes faces and small
+  objects a little; W4A8 more, enough to give the portrait a noticeably different face.
+- All four write sensible captions for the refiner and the prompt upsampler, with small differences in wording.
+- They follow Comfy-Org's recipes for Qwen3.5-9B: int8 ConvRot on every Linear, the embedding table (which is also the
+  output layer), the vision tower and the MTP head. W6A8 and W4A8 put the language model's Linears in ComfyUI's
+  `w6a8_int8` and `asym_w4a8_int8` formats instead, and the rest in int8. They are rounded to nearest without
+  calibration; Comfy-Org's 9B W4A8 file is GPTQ-calibrated.
 
 ## Workflows
 
@@ -230,6 +266,12 @@ The text encoder from Comfy-Org/Qwen3.5 holds the same tensors, byte for byte, a
 ```bash
 python tools/merge_qwen35.py path/to/Qwen3.5-4B ComfyUI/models/text_encoders/qwen3.5_4b_bf16.safetensors
 ```
+
+The smaller text encoders come from the bf16 one, in about 20 seconds on a GPU:
+
+```bash
+python tools/quantize_text_encoder.py ComfyUI/models/text_encoders/qwen3.5_4b_bf16.safetensors ComfyUI/models/text_encoders
+```
 </details>
 
 ## Troubleshooting
@@ -244,8 +286,8 @@ trained sizes: other sizes run, but framing can suffer, with picture-in-a-frame 
 <details>
 <summary><b><code>VRAM grow failed</code> while encoding the caption</b></summary>
 
-The text encoder needs one 1.27 GB buffer at once. Close what else holds the card, or set **Load P-JiT Text
-Encoder**'s `device` to `cpu`.
+The text encoder needs its embedding table in one piece: 1.27 GB in bf16, 0.64 GB in the int8, W6A8 and W4A8 files.
+Close what else holds the card, use a smaller text encoder, or set **Load P-JiT Text Encoder**'s `device` to `cpu`.
 </details>
 
 <details>
