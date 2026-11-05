@@ -1,0 +1,21 @@
+[project]
+name = "comfyui-pjit"
+description = "Linum's P-JiT 21K natively in ComfyUI: a 2B pixel-space text-to-image model with no VAE, on ComfyUI's own KSampler and memory management. bf16 and int8 ConvRot files, a refiner workflow, Linum's samples seed for seed. Runs from 4 GB of free VRAM."
+version = "1.0.0"
+license = { file = "LICENSE" }
+requires-python = ">=3.10"
+classifiers = ["Operating System :: OS Independent"]
+dependencies = []
+
+[project.urls]
+Repository = "https://github.com/PedroMarinhoDev/ComfyUI-PJiT"
+Documentation = "https://github.com/PedroMarinhoDev/ComfyUI-PJiT#readme"
+"Bug Tracker" = "https://github.com/PedroMarinhoDev/ComfyUI-PJiT/issues"
+"Model files" = "https://huggingface.co/PedroMarinhoDev/P-JiT-21K-ComfyUI"
+
+[tool.comfy]
+PublisherId = "pedromarinhodev"
+DisplayName = "P-JiT 21K (pixel-space text to image)"
+Icon = "https://raw.githubusercontent.com/PedroMarinhoDev/ComfyUI-PJiT/main/assets/registry-icon.png"
+Banner = "https://raw.githubusercontent.com/PedroMarinhoDev/ComfyUI-PJiT/main/assets/registry-banner.png"
+requires-comfyui = ">=0.44.0"

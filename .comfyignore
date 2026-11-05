@@ -1,0 +1,8 @@
+assets/
+docs/
+dev/
+tests/
+pytest.ini
+.github/
+__pycache__/
+*.pyc

@@ -1,0 +1,14 @@
+ComfyUI-PJiT is licensed under the GNU General Public License v3.0 (LICENSE), like ComfyUI, whose code it imports.
+
+It includes code adapted from Linum's P-JiT 21K (https://github.com/Linum-AI/pjit-21k), Copyright 2026 Linum Inc.,
+licensed under the Apache License, Version 2.0 (LICENSE-APACHE):
+
+- pjit/noise.py: the H100 noise kernel, reformatted, reduced to what the node needs, with a NOISE wrapper added.
+- pjit/upsampler.py: the prompt upsampler, with a local backend added at the end of the file.
+- pjit/model.py, pjit/guidance.py: reimplemented on ComfyUI's ops after Linum's model.py and sampler.py, keeping their
+  module names so the released weights load as they are.
+
+The model weights are not part of this repository:
+
+- P-JiT 21K, Linum Inc., Apache-2.0: https://huggingface.co/Linum-AI/pjit-21k
+- Qwen3.5-4B, Qwen, Apache-2.0: https://huggingface.co/Qwen/Qwen3.5-4B
